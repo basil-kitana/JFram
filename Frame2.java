@@ -12,6 +12,8 @@ public class Frame2 extends JFrame {
     JButton scoreFilterButton;
     JComboBox<String> courseFilterCombo;
     JButton courseFilterButton;
+    JComboBox<String> genderFilterCombo;
+    JButton genderFilterButton;
     
     public Frame2() {
         setTitle("Student List");
@@ -20,16 +22,14 @@ public class Frame2 extends JFrame {
         setLayout(new BorderLayout());
         
         listModel = new DefaultListModel<>();
-        for (Student s : StudentData.students) {
-            listModel.addElement(s);
-        }
+        StudentData.students.stream().forEach(s -> listModel.addElement(s));
         
         studentList = new JList<>(listModel);
         JScrollPane scrollPane = new JScrollPane(studentList);
         add(scrollPane, BorderLayout.CENTER);
         
         JPanel filterPanel = new JPanel();
-        filterPanel.setLayout(new GridLayout(4, 1));
+        filterPanel.setLayout(new GridLayout(5, 1));
         
         // Name filter
         JPanel nameFilterPanel = new JPanel(new FlowLayout());
@@ -44,11 +44,9 @@ public class Frame2 extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String filterText = filterField.getText();
                 listModel.clear();
-                for (Student s : StudentData.students) {
-                    if (s.name != null && (filterText.isEmpty() || s.name.contains(filterText))) {
-                        listModel.addElement(s);
-                    }
-                }
+                StudentData.students.stream()
+                    .filter(s -> s.name != null && (filterText.isEmpty() || s.name.contains(filterText)))
+                    .forEach(s -> listModel.addElement(s));
             }
         });
         nameFilterPanel.add(filterButton);
@@ -75,11 +73,9 @@ public class Frame2 extends JFrame {
                     int minScore = Integer.parseInt(minScoreField.getText());
                     int maxScore = Integer.parseInt(maxScoreField.getText());
                     listModel.clear();
-                    for (Student s : StudentData.students) {
-                        if (s.score >= minScore && s.score <= maxScore) {
-                            listModel.addElement(s);
-                        }
-                    }
+                    StudentData.students.stream()
+                        .filter(s -> s.score >= minScore && s.score <= maxScore)
+                        .forEach(s -> listModel.addElement(s));
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(Frame2.this, "Please enter valid score range!");
                 }
@@ -102,15 +98,35 @@ public class Frame2 extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String selectedCourse = (String) courseFilterCombo.getSelectedItem();
                 listModel.clear();
-                for (Student s : StudentData.students) {
-                    if (selectedCourse.equals("All") || selectedCourse.equals(s.course)) {
-                        listModel.addElement(s);
-                    }
-                }
+                StudentData.students.stream()
+                    .filter(s -> selectedCourse.equals("All") || selectedCourse.equals(s.course))
+                    .forEach(s -> listModel.addElement(s));
             }
         });
         courseFilterPanel.add(courseFilterButton);
         filterPanel.add(courseFilterPanel);
+
+        // Gender filter
+        JPanel genderFilterPanel = new JPanel(new FlowLayout());
+        JLabel genderLabel = new JLabel("Filter by Gender:");
+        genderFilterPanel.add(genderLabel);
+
+        String[] genders = {"All", "Male", "Female"};
+        genderFilterCombo = new JComboBox<>(genders);
+        genderFilterPanel.add(genderFilterCombo);
+
+        genderFilterButton = new JButton("Filter");
+        genderFilterButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String selectedGender = (String) genderFilterCombo.getSelectedItem();
+                listModel.clear();
+                StudentData.students.stream()
+                    .filter(s -> selectedGender.equals("All") || selectedGender.equals(s.gender))
+                    .forEach(s -> listModel.addElement(s));
+            }
+        });
+        genderFilterPanel.add(genderFilterButton);
+        filterPanel.add(genderFilterPanel);
         
         // Reset button
         JPanel resetPanel = new JPanel(new FlowLayout());
@@ -121,10 +137,9 @@ public class Frame2 extends JFrame {
                 minScoreField.setText("");
                 maxScoreField.setText("");
                 courseFilterCombo.setSelectedIndex(0);
+                genderFilterCombo.setSelectedIndex(0);
                 listModel.clear();
-                for (Student s : StudentData.students) {
-                    listModel.addElement(s);
-                }
+                StudentData.students.stream().forEach(s -> listModel.addElement(s));
             }
         });
         resetPanel.add(resetButton);
