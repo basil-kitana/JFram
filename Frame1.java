@@ -63,7 +63,7 @@ public class Frame1 extends JFrame {
                     scoreField.setText("");
                     ageField.setText("");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Frame1.this, "Please enter valid data!");
+                    JOptionPane.showMessageDialog(Frame1.this, "Please enter valid numbers for score and age!");
                 }
             }
         });

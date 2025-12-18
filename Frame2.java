@@ -103,7 +103,7 @@ public class Frame2 extends JFrame {
                 String selectedGrade = (String) gradeFilterCombo.getSelectedItem();
                 listModel.clear();
                 for (Student s : StudentData.students) {
-                    if (selectedGrade.equals("All") || s.grade.equals(selectedGrade)) {
+                    if (selectedGrade.equals("All") || selectedGrade.equals(s.grade)) {
                         listModel.addElement(s);
                     }
                 }
