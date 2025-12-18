@@ -38,7 +38,7 @@ public class Frame2 extends JFrame {
                 String filterText = filterField.getText();
                 listModel.clear();
                 for (Student s : StudentData.students) {
-                    if (filterText.isEmpty() || s.name.contains(filterText)) {
+                    if (s.name != null && (filterText.isEmpty() || s.name.contains(filterText))) {
                         listModel.addElement(s);
                     }
                 }

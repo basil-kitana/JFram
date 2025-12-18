@@ -31,6 +31,10 @@ public class Frame1 extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();
                 String scoreText = scoreField.getText();
+                if (name == null || name.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(Frame1.this, "Please enter a name!");
+                    return;
+                }
                 try {
                     int score = Integer.parseInt(scoreText);
                     Student s = new Student(name, score);
