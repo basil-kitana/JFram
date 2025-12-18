@@ -5,49 +5,82 @@ import java.awt.event.*;
 public class Frame1 extends JFrame {
     JTextField nameField;
     JTextField scoreField;
-    JTextField ageField;
-    JComboBox<String> gradeCombo;
+    JSpinner ageSpinner;
+    JComboBox<String> courseCombo;
     JButton addButton;
     JButton openFrame2Button;
     
     public Frame1() {
         setTitle("Add Student");
-        setSize(350, 300);
+        setSize(400, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new FlowLayout());
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         
+        // Name row
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;
         JLabel nameLabel = new JLabel("Name:");
-        add(nameLabel);
+        add(nameLabel, gbc);
         
-        nameField = new JTextField(15);
-        add(nameField);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        nameField = new JTextField(20);
+        add(nameField, gbc);
         
+        // Score row
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
         JLabel scoreLabel = new JLabel("Score:");
-        add(scoreLabel);
+        add(scoreLabel, gbc);
         
-        scoreField = new JTextField(15);
-        add(scoreField);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        scoreField = new JTextField(20);
+        add(scoreField, gbc);
         
-        JLabel gradeLabel = new JLabel("Grade:");
-        add(gradeLabel);
+        // Course row
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        JLabel courseLabel = new JLabel("Course:");
+        add(courseLabel, gbc);
         
-        String[] grades = {"Freshman", "Sophomore", "Junior", "Senior"};
-        gradeCombo = new JComboBox<>(grades);
-        add(gradeCombo);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        String[] courses = {"Math", "Calculus", "Physics", "Chemistry", "Biology"};
+        courseCombo = new JComboBox<>(courses);
+        add(courseCombo, gbc);
         
+        // Age row
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.EAST;
         JLabel ageLabel = new JLabel("Age:");
-        add(ageLabel);
+        add(ageLabel, gbc);
         
-        ageField = new JTextField(15);
-        add(ageField);
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        SpinnerModel ageModel = new SpinnerNumberModel(18, 1, 100, 1);
+        ageSpinner = new JSpinner(ageModel);
+        add(ageSpinner, gbc);
         
+        // Add button
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
         addButton = new JButton("Add Student");
         addButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();
                 String scoreText = scoreField.getText();
-                String grade = (String) gradeCombo.getSelectedItem();
-                String ageText = ageField.getText();
+                String course = (String) courseCombo.getSelectedItem();
+                int age = (Integer) ageSpinner.getValue();
                 
                 if (name == null || name.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(Frame1.this, "Please enter a name!");
@@ -55,20 +88,21 @@ public class Frame1 extends JFrame {
                 }
                 try {
                     int score = Integer.parseInt(scoreText);
-                    int age = Integer.parseInt(ageText);
-                    Student s = new Student(name, score, grade, age);
+                    Student s = new Student(name, score, course, age);
                     StudentData.students.add(s);
                     JOptionPane.showMessageDialog(Frame1.this, "Student added!");
                     nameField.setText("");
                     scoreField.setText("");
-                    ageField.setText("");
+                    ageSpinner.setValue(18);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Frame1.this, "Please enter valid numbers for score and age!");
+                    JOptionPane.showMessageDialog(Frame1.this, "Please enter a valid number for score!");
                 }
             }
         });
-        add(addButton);
+        add(addButton, gbc);
         
+        // View Students button
+        gbc.gridy = 5;
         openFrame2Button = new JButton("View Students");
         openFrame2Button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -76,7 +110,7 @@ public class Frame1 extends JFrame {
                 f2.setVisible(true);
             }
         });
-        add(openFrame2Button);
+        add(openFrame2Button, gbc);
         
         setVisible(true);
     }

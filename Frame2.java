@@ -10,8 +10,8 @@ public class Frame2 extends JFrame {
     JTextField minScoreField;
     JTextField maxScoreField;
     JButton scoreFilterButton;
-    JComboBox<String> gradeFilterCombo;
-    JButton gradeFilterButton;
+    JComboBox<String> courseFilterCombo;
+    JButton courseFilterButton;
     
     public Frame2() {
         setTitle("Student List");
@@ -88,29 +88,29 @@ public class Frame2 extends JFrame {
         scoreFilterPanel.add(scoreFilterButton);
         filterPanel.add(scoreFilterPanel);
         
-        // Grade filter
-        JPanel gradeFilterPanel = new JPanel(new FlowLayout());
-        JLabel gradeLabel = new JLabel("Filter by Grade:");
-        gradeFilterPanel.add(gradeLabel);
+        // Course filter
+        JPanel courseFilterPanel = new JPanel(new FlowLayout());
+        JLabel courseLabel = new JLabel("Filter by Course:");
+        courseFilterPanel.add(courseLabel);
         
-        String[] grades = {"All", "Freshman", "Sophomore", "Junior", "Senior"};
-        gradeFilterCombo = new JComboBox<>(grades);
-        gradeFilterPanel.add(gradeFilterCombo);
+        String[] courses = {"All", "Math", "Calculus", "Physics", "Chemistry", "Biology"};
+        courseFilterCombo = new JComboBox<>(courses);
+        courseFilterPanel.add(courseFilterCombo);
         
-        gradeFilterButton = new JButton("Filter");
-        gradeFilterButton.addActionListener(new ActionListener() {
+        courseFilterButton = new JButton("Filter");
+        courseFilterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String selectedGrade = (String) gradeFilterCombo.getSelectedItem();
+                String selectedCourse = (String) courseFilterCombo.getSelectedItem();
                 listModel.clear();
                 for (Student s : StudentData.students) {
-                    if (selectedGrade.equals("All") || selectedGrade.equals(s.grade)) {
+                    if (selectedCourse.equals("All") || selectedCourse.equals(s.course)) {
                         listModel.addElement(s);
                     }
                 }
             }
         });
-        gradeFilterPanel.add(gradeFilterButton);
-        filterPanel.add(gradeFilterPanel);
+        courseFilterPanel.add(courseFilterButton);
+        filterPanel.add(courseFilterPanel);
         
         // Reset button
         JPanel resetPanel = new JPanel(new FlowLayout());
@@ -120,7 +120,7 @@ public class Frame2 extends JFrame {
                 filterField.setText("");
                 minScoreField.setText("");
                 maxScoreField.setText("");
-                gradeFilterCombo.setSelectedIndex(0);
+                courseFilterCombo.setSelectedIndex(0);
                 listModel.clear();
                 for (Student s : StudentData.students) {
                     listModel.addElement(s);
