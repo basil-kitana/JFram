@@ -1,227 +1,149 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 import java.sql.SQLException;
 
 public class Frame2 extends JFrame {
-    JList<Student> studentList;
-    DefaultListModel<Student> listModel;
-    JTextField filterField;
-    JButton filterButton;
-    JTextField minScoreField;
-    JTextField maxScoreField;
-    JButton scoreFilterButton;
-    JComboBox<String> courseFilterCombo;
-    JButton courseFilterButton;
-    JComboBox<String> genderFilterCombo;
-    JButton genderFilterButton;
-    JButton deleteButton; // New Feature
-    JButton statsButton; // New Feature
-
-    DataContext db = new DataContext();
-    ArrayList<Student> allStudents = new ArrayList<>();
+    JList<Student> l;
+    DefaultListModel<Student> dlm;
+    JTextField f1, f2, f3;
+    JButton b1, b2, b3, b4, b5, b6;
+    JComboBox<String> c1, c2;
+    DataContext d = new DataContext();
+    ArrayList<Student> al = new ArrayList<>();
 
     public Frame2() {
-        setTitle("Student List");
-        setSize(500, 500); // Increased height for new buttons
+        setTitle("Students");
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+        dlm = new DefaultListModel<>();
+        load();
 
-        listModel = new DefaultListModel<>();
-        loadStudents();
+        l = new JList<>(dlm);
+        add(new JScrollPane(l), BorderLayout.CENTER);
+        JPanel p1 = new JPanel();
+        p1.setLayout(new GridLayout(6, 1));
+        JPanel p2 = new JPanel(new FlowLayout());
+        p2.add(new JLabel("Name:"));
+        f1 = new JTextField(10);
+        p2.add(f1);
 
-        studentList = new JList<>(listModel);
-        JScrollPane scrollPane = new JScrollPane(studentList);
-        add(scrollPane, BorderLayout.CENTER);
+        b1 = new JButton("Go");
+        b1.addActionListener(e -> {
+            String t = f1.getText();
+            dlm.clear();
+            al.stream().filter(s -> s.name != null && (t.isEmpty() || s.name.contains(t)))
+                    .forEach(s -> dlm.addElement(s));
+        });
+        p2.add(b1);
+        p1.add(p2);
 
-        JPanel filterPanel = new JPanel();
-        filterPanel.setLayout(new GridLayout(6, 1)); // Increased rows
+        JPanel p3 = new JPanel(new FlowLayout());
+        p3.add(new JLabel("Score:"));
+        f2 = new JTextField(5);
+        p3.add(f2);
 
-        // Name filter
-        JPanel nameFilterPanel = new JPanel(new FlowLayout());
-        JLabel filterLabel = new JLabel("Filter by Name:");
-        nameFilterPanel.add(filterLabel);
+        p3.add(new JLabel("to"));
+        f3 = new JTextField(5);
+        p3.add(f3);
 
-        filterField = new JTextField(10);
-        nameFilterPanel.add(filterField);
-
-        filterButton = new JButton("Filter");
-        filterButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String filterText = filterField.getText();
-                listModel.clear();
-                allStudents.stream()
-                        .filter(s -> s.name != null && (filterText.isEmpty() || s.name.contains(filterText)))
-                        .forEach(s -> listModel.addElement(s));
+        b2 = new JButton("Go");
+        b2.addActionListener(e -> {
+            try {
+                int min = Integer.parseInt(f2.getText());
+                int max = Integer.parseInt(f3.getText());
+                dlm.clear();
+                al.stream().filter(s -> s.score >= min && s.score <= max).forEach(s -> dlm.addElement(s));
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(Frame2.this, "Error");
             }
         });
-        nameFilterPanel.add(filterButton);
-        filterPanel.add(nameFilterPanel);
+        p3.add(b2);
+        p1.add(p3);
 
-        // Score range filter
-        JPanel scoreFilterPanel = new JPanel(new FlowLayout());
-        JLabel scoreLabel = new JLabel("Score Range:");
-        scoreFilterPanel.add(scoreLabel);
+        JPanel p4 = new JPanel(new FlowLayout());
+        p4.add(new JLabel("Course:"));
+        c1 = new JComboBox<>(new String[] { "All", "Math", "Calculus", "Physics", "Chemistry", "Biology" });
+        p4.add(c1);
+        b3 = new JButton("Go");
+        b3.addActionListener(e -> {
+            String sc = (String) c1.getSelectedItem();
+            dlm.clear();
+            al.stream().filter(s -> sc.equals("All") || sc.equals(s.course)).forEach(s -> dlm.addElement(s));
+        });
+        p4.add(b3);
+        p1.add(p4);
 
-        minScoreField = new JTextField(5);
-        scoreFilterPanel.add(minScoreField);
+        JPanel p5 = new JPanel(new FlowLayout());
+        p5.add(new JLabel("Gender:"));
+        c2 = new JComboBox<>(new String[] { "All", "Male", "Female" });
+        p5.add(c2);
 
-        JLabel toLabel = new JLabel("to");
-        scoreFilterPanel.add(toLabel);
+        b4 = new JButton("Go");
+        b4.addActionListener(e -> {
+            String sg = (String) c2.getSelectedItem();
+            dlm.clear();
+            al.stream().filter(s -> sg.equals("All") || sg.equals(s.gender)).forEach(s -> dlm.addElement(s));
+        });
+        p5.add(b4);
+        p1.add(p5);
 
-        maxScoreField = new JTextField(5);
-        scoreFilterPanel.add(maxScoreField);
+        JPanel p6 = new JPanel(new FlowLayout());
+        JButton r = new JButton("Reset");
+        r.addActionListener(e -> {
+            f1.setText("");
+            f2.setText("");
+            f3.setText("");
+            c1.setSelectedIndex(0);
+            c2.setSelectedIndex(0);
+            dlm.clear();
+            al.forEach(s -> dlm.addElement(s));
+        });
+        p6.add(r);
+        p1.add(p6);
 
-        scoreFilterButton = new JButton("Filter");
-        scoreFilterButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        add(p1, BorderLayout.NORTH);
+        JPanel p7 = new JPanel();
+        b5 = new JButton("Delete");
+        b5.addActionListener(e -> {
+            Student s = l.getSelectedValue();
+            if (s == null)
+                return;
+            if (JOptionPane.showConfirmDialog(Frame2.this, "Delete " + s.name + "?") == JOptionPane.YES_OPTION) {
                 try {
-                    int minScore = Integer.parseInt(minScoreField.getText());
-                    int maxScore = Integer.parseInt(maxScoreField.getText());
-                    listModel.clear();
-                    allStudents.stream()
-                            .filter(s -> s.score >= minScore && s.score <= maxScore)
-                            .forEach(s -> listModel.addElement(s));
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Frame2.this, "Please enter valid score range!");
+                    d.deleteStudent(s.id);
+                    al.remove(s);
+                    dlm.removeElement(s);
+                } catch (SQLException ex) {
                 }
             }
         });
-        scoreFilterPanel.add(scoreFilterButton);
-        filterPanel.add(scoreFilterPanel);
-
-        // Course filter
-        JPanel courseFilterPanel = new JPanel(new FlowLayout());
-        JLabel courseLabel = new JLabel("Filter by Course:");
-        courseFilterPanel.add(courseLabel);
-
-        String[] courses = { "All", "Math", "Calculus", "Physics", "Chemistry", "Biology" };
-        courseFilterCombo = new JComboBox<>(courses);
-        courseFilterPanel.add(courseFilterCombo);
-
-        courseFilterButton = new JButton("Filter");
-        courseFilterButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedCourse = (String) courseFilterCombo.getSelectedItem();
-                listModel.clear();
-                allStudents.stream()
-                        .filter(s -> selectedCourse.equals("All") || selectedCourse.equals(s.course))
-                        .forEach(s -> listModel.addElement(s));
-            }
-        });
-        courseFilterPanel.add(courseFilterButton);
-        filterPanel.add(courseFilterPanel);
-
-        // Gender filter
-        JPanel genderFilterPanel = new JPanel(new FlowLayout());
-        JLabel genderLabel = new JLabel("Filter by Gender:");
-        genderFilterPanel.add(genderLabel);
-
-        String[] genders = { "All", "Male", "Female" };
-        genderFilterCombo = new JComboBox<>(genders);
-        genderFilterPanel.add(genderFilterCombo);
-
-        genderFilterButton = new JButton("Filter");
-        genderFilterButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedGender = (String) genderFilterCombo.getSelectedItem();
-                listModel.clear();
-                allStudents.stream()
-                        .filter(s -> selectedGender.equals("All") || selectedGender.equals(s.gender))
-                        .forEach(s -> listModel.addElement(s));
-            }
-        });
-        genderFilterPanel.add(genderFilterButton);
-        filterPanel.add(genderFilterPanel);
-
-        // Reset button
-        JPanel resetPanel = new JPanel(new FlowLayout());
-        JButton resetButton = new JButton("Reset All Filters");
-        resetButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                filterField.setText("");
-                minScoreField.setText("");
-                maxScoreField.setText("");
-                courseFilterCombo.setSelectedIndex(0);
-                genderFilterCombo.setSelectedIndex(0);
-                listModel.clear();
-                allStudents.stream().forEach(s -> listModel.addElement(s));
-            }
-        });
-        resetPanel.add(resetButton);
-        filterPanel.add(resetPanel);
-
-        add(filterPanel, BorderLayout.NORTH);
-
-        // Action Panel (Delete & Stats)
-        JPanel actionPanel = new JPanel();
-        actionPanel.setLayout(new FlowLayout());
-
-        deleteButton = new JButton("Delete Selected");
-        deleteButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Student selected = studentList.getSelectedValue();
-                if (selected == null) {
-                    JOptionPane.showMessageDialog(Frame2.this, "Please select a student to delete.");
-                    return;
-                }
-
-                int confirm = JOptionPane.showConfirmDialog(Frame2.this,
-                        "Are you sure you want to delete " + selected.name + "?");
-                if (confirm == JOptionPane.YES_OPTION) {
-                    try {
-                        db.deleteStudent(selected.id);
-                        allStudents.remove(selected);
-                        listModel.removeElement(selected);
-                        JOptionPane.showMessageDialog(Frame2.this, "Student deleted.");
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(Frame2.this, "Error deleting student: " + ex.getMessage());
-                    }
-                }
-            }
-        });
-        actionPanel.add(deleteButton);
-
-        statsButton = new JButton("View Statistics");
-        statsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                showStatistics();
-            }
-        });
-        actionPanel.add(statsButton);
-
-        add(actionPanel, BorderLayout.SOUTH);
+        p7.add(b5);
+        b6 = new JButton("Stats");
+        b6.addActionListener(e -> stat());
+        p7.add(b6);
+        add(p7, BorderLayout.SOUTH);
     }
 
-    private void loadStudents() {
+    private void load() {
         try {
-            allStudents = db.getStudents();
-            listModel.clear();
-            for (Student s : allStudents) {
-                listModel.addElement(s);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading students: " + e.getMessage());
+            al = d.getStudents();
+            dlm.clear();
+            for (Student s : al)
+                dlm.addElement(s);
+        } catch (SQLException ex) {
         }
     }
 
-    private void showStatistics() {
-        if (allStudents.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No data available.");
+    private void stat() {
+        if (al.isEmpty())
             return;
-        }
-
-        double avgScore = allStudents.stream().mapToInt(s -> s.score).average().orElse(0);
-        int avgAge = (int) allStudents.stream().mapToInt(s -> s.age).average().orElse(0);
-        long maleCount = allStudents.stream().filter(s -> "Male".equalsIgnoreCase(s.gender)).count();
-        long femaleCount = allStudents.stream().filter(s -> "Female".equalsIgnoreCase(s.gender)).count();
-
-        String msg = String.format("Total Students: %d\nAverage Score: %.2f\nAverage Age: %d\nMale: %d\nFemale: %d",
-                allStudents.size(), avgScore, avgAge, maleCount, femaleCount);
-
-        JOptionPane.showMessageDialog(this, msg, "Class Statistics", JOptionPane.INFORMATION_MESSAGE);
+        double avg = al.stream().mapToInt(s -> s.score).average().orElse(0);
+        int age = (int) al.stream().mapToInt(s -> s.age).average().orElse(0);
+        long m = al.stream().filter(s -> "Male".equalsIgnoreCase(s.gender)).count();
+        long f = al.stream().filter(s -> "Female".equalsIgnoreCase(s.gender)).count();
+        JOptionPane.showMessageDialog(this, "Count: " + al.size() + "\nAvg Score: " + avg + "\nAvg Age: " + age
+                + "\nMale: " + m + "\nFemale: " + f);
     }
 }
