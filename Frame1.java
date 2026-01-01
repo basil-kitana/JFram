@@ -12,7 +12,9 @@ public class Frame1 extends JFrame {
     ButtonGroup genderGroup;
     JButton addButton;
     JButton openFrame2Button;
-    
+
+    DataContext db = new DataContext();
+
     public Frame1() {
         setTitle("Add Student");
         setSize(400, 300);
@@ -21,51 +23,51 @@ public class Frame1 extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
+
         // Name row
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.EAST;
         JLabel nameLabel = new JLabel("Name:");
         add(nameLabel, gbc);
-        
+
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
         nameField = new JTextField(20);
         add(nameField, gbc);
-        
+
         // Score row
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.EAST;
         JLabel scoreLabel = new JLabel("Score:");
         add(scoreLabel, gbc);
-        
+
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
         scoreField = new JTextField(20);
         add(scoreField, gbc);
-        
+
         // Course row
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.EAST;
         JLabel courseLabel = new JLabel("Course:");
         add(courseLabel, gbc);
-        
+
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
-        String[] courses = {"Math", "Calculus", "Physics", "Chemistry", "Biology"};
+        String[] courses = { "Math", "Calculus", "Physics", "Chemistry", "Biology" };
         courseCombo = new JComboBox<>(courses);
         add(courseCombo, gbc);
-        
+
         // Age row
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.EAST;
         JLabel ageLabel = new JLabel("Age:");
         add(ageLabel, gbc);
-        
+
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.WEST;
         SpinnerModel ageModel = new SpinnerNumberModel(18, 1, 100, 1);
@@ -91,7 +93,7 @@ public class Frame1 extends JFrame {
         genderPanel.add(maleRadio);
         genderPanel.add(femaleRadio);
         add(genderPanel, gbc);
-        
+
         // Add button
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -105,7 +107,7 @@ public class Frame1 extends JFrame {
                 String course = (String) courseCombo.getSelectedItem();
                 int age = (Integer) ageSpinner.getValue();
                 String gender = maleRadio.isSelected() ? "Male" : "Female";
-                
+
                 if (name == null || name.trim().isEmpty()) {
                     JOptionPane.showMessageDialog(Frame1.this, "Please enter a name!");
                     return;
@@ -113,19 +115,20 @@ public class Frame1 extends JFrame {
                 try {
                     int score = Integer.parseInt(scoreText);
                     Student s = new Student(name, score, course, age, gender);
-                    StudentData.students.add(s);
+                    db.saveStudent(s);
                     JOptionPane.showMessageDialog(Frame1.this, "Student added!");
                     nameField.setText("");
                     scoreField.setText("");
                     ageSpinner.setValue(18);
                     maleRadio.setSelected(true);
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(Frame1.this, "Please enter a valid number for score!");
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(Frame1.this, "Error adding student: " + ex.getMessage());
                 }
             }
         });
         add(addButton, gbc);
-        
+
         // View Students button
         gbc.gridy = 6;
         openFrame2Button = new JButton("View Students");
@@ -136,10 +139,10 @@ public class Frame1 extends JFrame {
             }
         });
         add(openFrame2Button, gbc);
-        
+
         setVisible(true);
     }
-    
+
     public static void main(String[] args) {
         new Frame1();
     }

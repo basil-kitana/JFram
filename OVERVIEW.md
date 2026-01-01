@@ -8,12 +8,12 @@ Frame1 (Main Frame) - Using GridBagLayout
 ├── Score TextField (integer)
 ├── Course ComboBox (dropdown: Math, Calculus, Physics, Chemistry, Biology)
 ├── Age JSpinner (integer with up/down arrows)
+├── Gender Radio Buttons (Male/Female)
 ├── Add Student Button
 │   └── Creates Student object with all fields
-│       └── Adds to StudentData.students
+│       └── Saves to MySQL Database
 └── View Students Button
     └── Opens Frame2
-├── Gender Radio Buttons (Male/Female)
 
 Frame2 (Display Frame)
 ├── JList (shows all students)
@@ -30,8 +30,12 @@ Frame2 (Display Frame)
 ├── Filter by Gender
 │   ├── Gender ComboBox (dropdown with All/Male/Female)
 │   └── Filter Button
-└── Reset All Filters Button
-    └── Shows all students again
+├── Reset All Filters Button
+│   └── Shows all students again
+├── Delete Selected Button
+│   └── Removes selected student from Database and List
+└── View Statistics Button
+    └── Shows popup with Class Statistics (Avg Score, Age, Gender count)
 ```
 
 ## Data Flow
@@ -41,29 +45,32 @@ Frame2 (Display Frame)
    - Score (integer)
    - Course (selected from dropdown)
    - Age (integer using spinner)
-  - Gender (radio buttons)
-2. Click "Add Student" → validates input → creates Student object → stores in StudentData
+   - Gender (radio buttons)
+2. Click "Add Student" → validates input → creates Student object → saves to MySQL Database
 3. Click "View Students" → opens Frame2
-4. Frame2 loads all students from StudentData into JList
+4. Frame2 loads all students from MySQL Database into JList
 5. User can filter students using:
    - Name filter (substring search)
    - Score range filter (min-max range)
    - Course filter (exact match)
-  - Gender filter (exact match)
+   - Gender filter (exact match)
+6. User can delete selected students or view class statistics.
 
 ## Features
 
 - Simple two-frame GUI using Java Swing
+- **MySQL Database Integration**: Persistent storage for student records
 - **Improved UI Layout**: Frame1 uses GridBagLayout for clean, organized form layout
-- Add students with name, score, course (dropdown), and age (spinner)
-- Add students with gender (Male/Female)
-- **JSpinner for Age**: Integer-only input with up/down arrows, no string input allowed
+- Add students with name, score, course (dropdown), age (spinner), and gender
+- **JSpinner for Age**: Integer-only input with up/down arrows
 - View all students in a list
 - Multiple filter options:
-  - Filter by name (text search)
-  - Filter by score range (integer range)
-  - Filter by course (dropdown selection)
-  - Filter by gender (dropdown selection)
+  - Filter by name
+  - Filter by score range
+  - Filter by course
+  - Filter by gender
+- **Delete Functionality**: Remove students from the database
+- **Statistics View**: Check class average score, age, and gender distribution
 - Basic input validation
 - Beginner-friendly code structure
 
